@@ -1,0 +1,15 @@
+Dataset,Model,Error,BIC
+Alpha-globin,Additive,Log-normal,-60.741752
+Alpha-globin,Exponential,Log-normal,3.826876
+Alpha-globin,Logistic,Log-normal,-63.24942
+Alpha-globin,Additive,Normal,-50.166041
+Alpha-globin,Exponential,Normal,50.536484
+Alpha-globin,Logistic,Normal,-40.187421
+Wap,Additive,Log-normal,344.8812
+Wap,Exponential,Log-normal,342.9144
+Wap,Logistic,Log-normal,335.3087
+Wap,Additive,Normal,414.3367
+Wap,Exponential,Normal,402.4398
+Wap,Logistic,Normal,406.0011
+Wap,Logistic-H12,Log-normal,338.5089
+Wap,Logistic-H23,Log-normal,337.8458
