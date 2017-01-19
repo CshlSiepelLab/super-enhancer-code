@@ -12,7 +12,7 @@ rgap=ifelse(rbic2$Rel.bic < -5 , rbic2$Rel.bic +50, rbic2$Rel.bic )
 
 pdf("plots/fancy_bic.pdf")
 x<-barplot(height = rgap,width=1,  pch=16, xlab= 'Model', ylab='Relative BIC', 
-        yaxt="n",col=c(4,4,4,3,3,3),cex.names=1.4,cex.lab=1.5)
+        yaxt="n",col=c(4,4,4,3,3,3),cex.names=1.4,cex.lab=1.5,ylim=c(-15,10))
 text(cex=1.5, x=x+0.25, y=-16, rbic2$Model, xpd=TRUE, srt=45, pos=2)
 xat <- pretty(rgap)
 xat <- xat[xat!=-5]
