@@ -60,7 +60,7 @@ optim.mod <- function(response,design.mat,ll.fun,parms,lower=NULL,upper=NULL,res
 
 ## Optimization using evolutionary algorithm
 deOptim.mod<-function(response,design.mat,ll.fun,parms,lower,upper,restarts=10,
-              error.mod,refine=FALSE){
+                      error.mod,refine=FALSE){
   response=as.matrix(response)
   design.mat=as.matrix(design.mat)
   ## Initialize parameters
@@ -72,16 +72,16 @@ deOptim.mod<-function(response,design.mat,ll.fun,parms,lower,upper,restarts=10,
     upper=rep(upper,nparms)
   }
   opt=list(fn = ll.fun,lower=lower,upper=upper,response=response,design.mat=design.mat,
-           error.mod=error.mod,control=list(itermax=10000,NP=20*length(lower),trace=100))
+           error.mod=error.mod,control=list(itermax=5000,NP=20*length(lower),trace=100))
   best=do.call(DEoptim,args = opt)
   if(refine){
-      best=optim.mod(response = response,design.mat = design.mat, ll.fun=ll.fun, 
-                parms=as.numeric(best$optim$bestmem),error.mod=error.mod,
-                restarts=1,refine=FALSE)
-    }
+    best=optim.mod(response = response,design.mat = design.mat, ll.fun=ll.fun, 
+                   parms=as.numeric(best$optim$bestmem),error.mod=error.mod,
+                   restarts=1,refine=FALSE)
+  }
   return(best)
 }
- 
+
 ## Take model and get predicted values for specific inputs
 model.pred <- function(design.mat, params, val.fun){
   design.mat=as.matrix(design.mat)
@@ -109,11 +109,11 @@ linear.mod <- function(x,response,design.mat,
     stop("Must choose an error model.")
   }
   act=linear.act(x,design.mat)
-  expression=linear.val(act)
+  express=linear.val(act)
   if(error.mod=="gaussian"){
     ll=dnorm(response,act,x[2+ncol(design.mat)],log=TRUE)    
   } else if(error.mod=="log-normal"){
-    ll=dlnorm(response,my.log(expression),x[2+ncol(design.mat)],log=TRUE)
+    ll=dlnorm(response,my.log(express),x[2+ncol(design.mat)],log=TRUE)
   } else {
     stop("Not a valid error model.")
   }
@@ -141,13 +141,13 @@ linear.predict <- function(design.mat,x){
 multiplicative.model <- function(x,response,design.mat,
                                  error.mod=c("gaussian","log-normal","gamma")){
   act=linear.act(x,design.mat)
-  expression=multiplicative.val(act)
+  express=multiplicative.val(act)
   if(error.mod=="gaussian"){
-    ll=dnorm(response,expression,x[2+ncol(design.mat)],log=TRUE)
+    ll=dnorm(response,express,x[2+ncol(design.mat)],log=TRUE)
   } else if(error.mod=="log-normal"){
-    ll=dlnorm(response,my.log(expression),x[2+ncol(design.mat)],log = TRUE)
+    ll=dlnorm(response,my.log(express),x[2+ncol(design.mat)],log = TRUE)
   } else if(error.mod=="gamma"){
-    ll=dgamma(response,expression/x[2+ncol(design.mat)],scale = x[2+ncol(design.mat)],
+    ll=dgamma(response,express/x[2+ncol(design.mat)],scale = x[2+ncol(design.mat)],
               log=TRUE)
   } else {
     stop("Not a valid error model.")
@@ -163,9 +163,9 @@ multiplicative.val <- function(act,x=NULL){
 ## Get predicted model value given parameters and design matrix
 multiplicative.predict <- function(design.mat,x){
   act=linear.act(x,design.mat)
-  expression=multiplicative.val(act)
+  express=multiplicative.val(act)
   return(data.table(design.mat,activity=as.numeric(act),
-                    expression=as.numeric(expression)))  
+                    expression=as.numeric(express)))  
 }
 
 ##
@@ -176,16 +176,16 @@ logistic.model <- function(x,response,design.mat,
                            error.mod=c("gaussian","scaled-gaussian",
                                        "log-normal","gamma")){
   act=linear.act(x,design.mat)
-  expression=logistic.val(act,x[ncol(design.mat)+2])
+  express=logistic.val(act,x[ncol(design.mat)+2])
   if(error.mod=="gaussian"){
-    ll=dnorm(response,expression,x[3+ncol(design.mat)],log=TRUE)
+    ll=dnorm(response,express,x[3+ncol(design.mat)],log=TRUE)
   } else if(error.mod=="log-normal"){
-    ll=dlnorm(response,my.log(expression),x[3+ncol(design.mat)],log = TRUE)
+    ll=dlnorm(response,my.log(express),x[3+ncol(design.mat)],log = TRUE)
   } else if(error.mod=="gamma"){
-    ll=dgamma(response,expression/x[3+ncol(design.mat)],scale = x[3+ncol(design.mat)],
+    ll=dgamma(response,express/x[3+ncol(design.mat)],scale = x[3+ncol(design.mat)],
               log=TRUE)
   } else if(error.mod=="scaled-gaussian"){
-    ll=unlist(apply(cbind(response,expression),1,function(y) 
+    ll=unlist(apply(cbind(response,express),1,function(y) 
       dnorm(y[1],y[2],y[2]*x[3+ncol(design.mat)],log=TRUE)))
   }else {
     stop("Not a valid error model.")
@@ -201,9 +201,9 @@ logistic.val <- function(act,scale){
 ## Get predicted model value given parameters and design matrix
 logistic.predict <- function(design.mat,x){
   act=linear.act(x,design.mat)
-  expression=logistic.val(act,x[ncol(design.mat)+2])
+  express=logistic.val(act,x[ncol(design.mat)+2])
   return(data.table(design.mat,activity=as.numeric(act),
-                    expression=as.numeric(expression)))  
+                    expression=as.numeric(express)))  
 }
 
 #####
@@ -243,29 +243,29 @@ plot.model <- function(model,observed,design.mat,val.fun,error.type,...){
   return(g)
 }
 
-lognormal.error.int<-function(activity,expression,sdlog,quart){
+lognormal.error.int<-function(activity,express,sdlog,quart){
   if(sum(quart>0.5)>0){
     stop("Quantiles 0<quart<0.5")
   }
   err=list()
   for(q in quart){
     err[[as.character(q)]]=data.table(x=c(activity,rev(activity)),
-                                      y=c(qlnorm(q, log(expression), sdlog),
-                                          rev(qlnorm(1-q, log(expression), sdlog))),
+                                      y=c(qlnorm(q, log(express), sdlog),
+                                          rev(qlnorm(1-q, log(express), sdlog))),
                                       Quantile=paste0(q,"-",1-q))
   }
   return(rbindlist(err))
 }
 
-gaussian.error.int <- function(activity,expression,sd,quart){
+gaussian.error.int <- function(activity,express,sd,quart){
   if(sum(quart>0.5)>0){
     stop("Quantiles 0<quart<0.5")
   }
   err=list()
   for(q in quart){
     err[[as.character(q)]]=data.table(x=c(activity,rev(activity)),
-                                      y=c(qnorm(q, expression, sd),
-                                          rev(qnorm(1-q, expression, sd))),
+                                      y=c(qnorm(q, express, sd),
+                                          rev(qnorm(1-q, express, sd))),
                                       Quantile=paste0(q,"-",1-q))
   }
   return(rbindlist(err))
