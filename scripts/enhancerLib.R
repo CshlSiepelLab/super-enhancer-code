@@ -60,7 +60,7 @@ optim.mod <- function(response,design.mat,ll.fun,parms,lower=NULL,upper=NULL,res
 
 ## Optimization using evolutionary algorithm
 deOptim.mod<-function(response,design.mat,ll.fun,parms,lower,upper,restarts=10,
-                      error.mod,refine=FALSE){
+                      error.mod,refine=FALSE,max.iter=5000){
   response=as.matrix(response)
   design.mat=as.matrix(design.mat)
   ## Initialize parameters
@@ -72,7 +72,7 @@ deOptim.mod<-function(response,design.mat,ll.fun,parms,lower,upper,restarts=10,
     upper=rep(upper,nparms)
   }
   opt=list(fn = ll.fun,lower=lower,upper=upper,response=response,design.mat=design.mat,
-           error.mod=error.mod,control=list(itermax=5000,NP=20*length(lower),trace=100))
+           error.mod=error.mod,control=list(itermax=max.iter,NP=20*length(lower),trace=100))
   best=do.call(DEoptim,args = opt)
   if(refine){
     best=optim.mod(response = response,design.mat = design.mat, ll.fun=ll.fun, 
