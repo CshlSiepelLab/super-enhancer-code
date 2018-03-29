@@ -6,3 +6,7 @@ Requred R packages:
 * ggplot2
 * DEoptim
 * reshape2
+
+An R package for doing these analysis has now been created and is at:
+
+https://github.com/ndukler/superEnhancerModelR
